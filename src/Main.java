@@ -21,10 +21,12 @@ public class Main {
                 argList.add(arg.toString());
             }
 
-            if (argList.contains("scan=") || argList.contains("help")) {
+            System.out.println(argList.toString().contains("dport=true"));
+
+            if (argList.toString().contains("scan=") || argList.contains("help")) {
 
                 if (args[0].contains("scan=")) {
-                    checkOpenPorts(args[0].replace("scan=", ""), argList.contains("dport=true"));
+                    checkOpenPorts(args[0].replace("scan=", ""), argList.toString().contains("dport=true"));
                 } else if (args[0].contains("help")) {
                     System.out.println(" ");
                     System.out.println("Welcome to Dynamic.Network (DCN) vD1!");
@@ -63,11 +65,10 @@ public class Main {
 
                         if (address.isReachable(5000)) {
                             System.out.println("Host '" + convIP + "' is reachable");
-                            if (!argList.isEmpty() && argList.contains("auto=true")) checkOpenPorts(convIP, argList.contains("dport=true"));
+                            if (!argList.isEmpty() && argList.toString().contains("auto=true")) checkOpenPorts(convIP, argList.toString().contains("dport=true"));
                         }
                     } catch (final IOException ignored) {
                     }
-                    Thread.currentThread().interrupt();
                 }, executorService);
                 futures.add(future);
             }
@@ -96,7 +97,6 @@ public class Main {
                     System.out.println("          Port '" + finalI + "' is open on '" + ip + "'");
                 } catch (final IOException ignored) {
                 }
-                Thread.currentThread().interrupt();
             }, executorService);
             futures.add(future);
         }
