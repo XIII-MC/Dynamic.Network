@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Dynamic.Network:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Dynamic_Network_jar</output-path>
+    <root id="archive" name="Dynamic.Network.jar">
+      <element id="module-output" name="Dynamic.Network" />
+      <element id="library" level="project" name="progressbar-0.10.0" />
+    </root>
+  </artifact>
+</component>
