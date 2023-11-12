@@ -67,6 +67,7 @@ public class Main {
                         }
                     } catch (final IOException ignored) {
                     }
+                    Thread.currentThread().interrupt();
                 }, executorService);
                 futures.add(future);
             }
@@ -82,7 +83,7 @@ public class Main {
 
         final long startTime = System.currentTimeMillis();
 
-        System.out.println("Starting port scan on '" + ip + "'... (AUTO " + (dynamicPorts ? "65535" : "49152") + " THREADS)");
+        System.out.println("          Starting port scan on '" + ip + "'... (AUTO " + (dynamicPorts ? "65535" : "49152") + " THREADS)");
 
         final ExecutorService executorService = Executors.newFixedThreadPool(65535);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -92,14 +93,15 @@ public class Main {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
                     new Socket().connect(new InetSocketAddress(ip, finalI), 1000);
-                    System.out.println("Port '" + finalI + "' is open on '" + ip + "'");
+                    System.out.println("          Port '" + finalI + "' is open on '" + ip + "'");
                 } catch (final IOException ignored) {
                 }
+                Thread.currentThread().interrupt();
             }, executorService);
             futures.add(future);
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         executorService.shutdown();
-        System.out.println("Port scan finished on '" + ip + "' in " + (System.currentTimeMillis() - startTime) + "ms!");
+        System.out.println("          Port scan finished on '" + ip + "' in " + (System.currentTimeMillis() - startTime) + "ms!");
     }
 }
