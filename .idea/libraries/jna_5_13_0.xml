@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="progressbar-0.10.0">
+  <library name="jna-5.13.0">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/libs/progressbar-0.10.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/jna-5.13.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

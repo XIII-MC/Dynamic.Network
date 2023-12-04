@@ -7,6 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="progressbar-0.10.0" level="project" />
+    <orderEntry type="library" name="jna-5.13.0" level="project" />
+    <orderEntry type="library" name="jna-platform-5.13.0" level="project" />
   </component>
 </module>

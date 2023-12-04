@@ -3,7 +3,8 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Dynamic_Network_jar</output-path>
     <root id="archive" name="Dynamic.Network.jar">
       <element id="module-output" name="Dynamic.Network" />
-      <element id="library" level="project" name="progressbar-0.10.0" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/jna-platform-5.13.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/jna-5.13.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
