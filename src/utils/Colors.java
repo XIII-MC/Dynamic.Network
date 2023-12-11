@@ -1,8 +1,14 @@
-public class Colors {
+package utils;
+
+import com.sun.jna.Function;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinNT;
+
+public final class Colors {
     // Reset
     public static final String RESET = "\033[0m";  // Text Reset
 
-    // Regular Colors
+    // Regular utils.Colors
     public static final String BLACK = "\033[0;30m";   // BLACK
     public static final String RED = "\033[0;31m";     // RED
     public static final String GREEN = "\033[0;32m";   // GREEN
@@ -71,4 +77,20 @@ public class Colors {
     public static final String PURPLE_BACKGROUND_BRIGHT = "\033[0;105m"; // PURPLE
     public static final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
     public static final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
+
+    public static void enableWindows10AnsiSupport() {
+        Function GetStdHandleFunc = Function.getFunction("kernel32", "GetStdHandle");
+        WinDef.DWORD STD_OUTPUT_HANDLE = new WinDef.DWORD(-11);
+        WinNT.HANDLE hOut = (WinNT.HANDLE) GetStdHandleFunc.invoke(WinNT.HANDLE.class, new Object[]{STD_OUTPUT_HANDLE});
+
+        WinDef.DWORDByReference p_dwMode = new WinDef.DWORDByReference(new WinDef.DWORD(0));
+        Function GetConsoleModeFunc = Function.getFunction("kernel32", "GetConsoleMode");
+        GetConsoleModeFunc.invoke(WinDef.BOOL.class, new Object[]{hOut, p_dwMode});
+
+        int ENABLE_VIRTUAL_TERMINAL_PROCESSING = 4;
+        WinDef.DWORD dwMode = p_dwMode.getValue();
+        dwMode.setValue(dwMode.intValue() | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+        Function SetConsoleModeFunc = Function.getFunction("kernel32", "SetConsoleMode");
+        SetConsoleModeFunc.invoke(WinDef.BOOL.class, new Object[]{hOut, dwMode});
+    }
 }
