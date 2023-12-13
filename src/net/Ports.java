@@ -55,7 +55,10 @@ public class Ports {
     // 80 | HTTP | Web Interface
     // 111 | NFS | NFSv2/v3
     // 445 | SMB | Network Share
+    // 548 | Share
     // 2049 | NFS (Network File System) | NFSv1
+    // 5000 | NAS Port | Synology
+    // 5001 | NAS Port | Synology Management
 
     // [K] PORT, [V] POINT_VALUE
     // NAS, Network Attached Storage
@@ -64,7 +67,10 @@ public class Ports {
         put(80, 10);
         put(111, 10);
         put(445, 10);
+        put(548, 20);
         put(2049, 10);
+        put(5000, 20);
+        put(5001, 20);
     }};
 
     // 9080 | ??? | Tells the Netflix services status

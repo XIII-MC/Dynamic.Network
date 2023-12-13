@@ -5,14 +5,16 @@ import base.Settings;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class Scan extends Settings {
 
-    public static List<String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) {
+    public static HashMap<String, String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) {
 
         final long startTime = System.currentTimeMillis();
 
@@ -25,7 +27,7 @@ public final class Scan extends Settings {
         final String ip = ipv4Split[0] + "." + ipv4Split[1] + "." + ipv4Split[2] + ".";
 
         // Define the list and if it should be reversed
-        final List<String> returnIP = new ArrayList<>();
+        final HashMap<String, String> returnIP = new HashMap<>();
 
         for (int i = 0; i <= 254; i++) {
 
@@ -39,8 +41,8 @@ public final class Scan extends Settings {
                     // According to Oracle this works similarly to an ICMP ping
                     final InetAddress address = InetAddress.getByName(ip + finalI);
                     if (address.isReachable(maxICMPWait)) {
-                        if (!reverse) returnIP.add(address.getHostAddress());
-                    } else if (reverse) returnIP.add(address.getHostAddress());
+                        if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
+                    } else if (reverse) returnIP.put(address.getHostAddress(), null);
 
                 } catch (final IOException ignored) {}
 
