@@ -1,5 +1,4 @@
 import base.Settings;
-import net.Clients;
 import net.Scan;
 import utils.Colors;
 import utils.Input;
@@ -15,7 +14,6 @@ public class Main extends Settings {
 
     public static void main(final String[] args) throws IOException {
 
-        Clients.getClientTypeByPorts("192.168.1.254", "null");
 
         if (System.getProperty("os.name").startsWith("Windows")) {
 

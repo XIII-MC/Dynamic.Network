@@ -33,7 +33,7 @@ public class Settings {
 
         // Enumerate settings
         if (settingID == -1) {
-            System.out.println(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | There are currently " + settingsList.size() + " available settings" : "[-] | There are currently " + settingsList.size() + " available settings");
+            System.out.println(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | There currently is " + settingsList.size() + " available settings" : "[-] | There are currently " + settingsList.size() + " available settings");
             for (final Map.Entry<String, Map.Entry<Integer, String>> set : settingsList.entrySet()) {
 
                 // Enumerate settings possibilities
@@ -46,7 +46,7 @@ public class Settings {
         // Define maxNetThreads
         if (settingID == 1) {
 
-            maxNetThreads = Integer.parseInt(Input.getUserInput(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | Enter the 'maxNetThreads':" : "[-] | Enter the 'maxNetThreads':"));
+            maxNetThreads = Integer.parseInt(Input.getUserInput(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | Enter the value for 'maxNetThreads':" : "[-] | Enter the value for 'maxNetThreads':"));
             System.out.println(ANSI ? Colors.GREEN + "[v]" + Colors.RESET + " | Defined 'maxNetThreads' to '" + maxNetThreads + "'" : "[v] | Defined 'maxNetThreads' to '" + maxNetThreads + "'");
             defineSettings(-1);
         }
@@ -54,7 +54,7 @@ public class Settings {
         // Define maxNetThreads
         if (settingID == 2) {
 
-            maxICMPWait = Integer.parseInt(Input.getUserInput(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | Enter the 'maxICMPWait':" : "[-] | Enter the 'maxICMPWait':"));
+            maxICMPWait = Integer.parseInt(Input.getUserInput(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | Enter the value for 'maxICMPWait':" : "[-] | Enter the value for 'maxICMPWait':"));
             System.out.println(ANSI ? Colors.GREEN + "[v]" + Colors.RESET + " | Defined 'maxICMPWait' to '" + maxICMPWait + "'" : "[v] | Defined 'maxICMPWait' to '" + maxICMPWait + "'");
             defineSettings(-1);
         }
@@ -62,7 +62,7 @@ public class Settings {
         // Define maxNetThreads
         if (settingID == 3) {
 
-            getHostName = Boolean.parseBoolean(Input.getUserInput(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | Enter the 'getHostName':" : "[-] | Enter the 'getHostName':"));
+            getHostName = Boolean.parseBoolean(Input.getUserInput(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | Enter the value for 'getHostName':" : "[-] | Enter the value for 'getHostName':"));
             System.out.println(ANSI ? Colors.GREEN + "[v]" + Colors.RESET + " | Defined 'getHostName' to '" + getHostName + "'" : "[v] | Defined 'getHostName' to '" + getHostName + "'");
             defineSettings(-1);
         }
