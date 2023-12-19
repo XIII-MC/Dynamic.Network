@@ -1,4 +1,4 @@
-package base;
+package options;
 
 import utils.Colors;
 import utils.Input;
@@ -6,7 +6,6 @@ import utils.Input;
 import java.util.*;
 
 public class Settings {
-
 
     // ANSI Color support
     public static boolean ANSI = false;

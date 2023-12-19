@@ -166,6 +166,19 @@ public class Ports {
         put(8080, 10);
     }};
 
+    // 135 | RPC
+    // 139 | NetBIOS
+    // 445 | SMB
+
+    // [K] PORT, [V] POINT_VALUE
+    // Windows Clients
+    public static Map<Integer, Integer> ports_msClient = new HashMap<Integer, Integer>()
+    {{
+        put(135, 10);
+        put(139, 10);
+        put(445, 10);
+    }};
+
     public static boolean checkPort(final String ipv4, final int port) {
 
         try {

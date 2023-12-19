@@ -1,6 +1,6 @@
 package net;
 
-import base.Settings;
+import options.Settings;
 
 import java.io.IOException;
 import java.net.InetAddress;

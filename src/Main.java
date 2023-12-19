@@ -1,19 +1,16 @@
-import base.Settings;
+import net.Clients;
 import net.Scan;
+import options.Settings;
 import utils.Colors;
 import utils.Input;
 
 import java.io.IOException;
 import java.net.NetworkInterface;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main extends Settings {
 
     public static void main(final String[] args) throws IOException {
-
 
         if (System.getProperty("os.name").startsWith("Windows")) {
 
@@ -48,8 +45,10 @@ public class Main extends Settings {
             }
         }
 
-        if (interfacesSize == 0) System.out.println(ANSI ? Colors.GREEN + "[x] " + Colors.RESET + " | No network interface detected, are they enabled?" : "[x] | No network interface detected, are they enabled?");
-        else System.out.println(ANSI ? Colors.GREEN + "[v]" + Colors.RESET + " | Found " + interfacesSize + " network interfaces." : "[v] | Found " + interfacesSize + " network interfaces.");
+        if (interfacesSize == 0) {
+            System.out.println(ANSI ? Colors.RED + "[x] " + Colors.RESET + " | No network interface detected, are they enabled?" : "[x] | No network interface detected, are they enabled?");
+            return;
+        } else System.out.println(ANSI ? Colors.GREEN + "[v]" + Colors.RESET + " | Found " + interfacesSize + " network interfaces." : "[v] | Found " + interfacesSize + " network interfaces.");
 
         // Print net interfaces
         networkInterfaces.forEach(System.out::println);
@@ -64,13 +63,28 @@ public class Main extends Settings {
         System.out.println(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | Running network scan on '" + interfaceIP + "', please wait..." : "[-] | Running network scan on '" + interfaceIP + "', please wait...");
 
         // Net scan
-        for (final Map.Entry<String, String> set : Scan.getNetworkIPs(interfaceIP, 24, false).entrySet()) {
-            // Dynamic net state
-            final String netState = set.getValue().equals("N/A") ? "[C] v<-?->v [H]" :  "[C] v<--->v [H]";
+        // Make a hashmap in order to be able to identify
+        final HashMap<Integer, String> netID = new HashMap<>();
+        final HashMap<String, String> scanResults = Scan.getNetworkIPs(interfaceIP, 24, false);
 
-            System.out.println(ANSI ? "    | " + (netState.contains("?") ? Colors.YELLOW : Colors.GREEN) + netState + Colors.RESET + " | Reached host '" + set.getKey() + "' ! (" + set.getValue() + ")" : "    | " + netState + " | Reached host '" + set.getKey() + "' ! (" + set.getValue() + ")");
+        for (final Map.Entry<String, String> set : scanResults.entrySet()) {
+
+            System.out.println(ANSI ? "    | #" + netID.size() + " | " + (set.getValue().equals("N/A") ? Colors.YELLOW : Colors.GREEN) + "[C] v<--->v [H]" + Colors.RESET + " | Reached host '" + set.getKey() + "' ! (" + set.getValue() + ")" : "    | #" + netID.size() + " | " + "[C] v<--->v [H]" + " | Reached host '" + set.getKey() + "' ! (" + set.getValue() + ")");
+            netID.put(netID.size(), set.getKey());
         }
 
         System.out.println(ANSI ? "    | " + Colors.RED + "[C] v<-x->? [H]" + Colors.RESET + " | We couldn't reach other hosts :(" : "    | [C] v<-x->? [H] | We couldn't reach other hosts :(");
+
+        // Identify clients function
+        int selectedNetID = 0;
+
+        while (selectedNetID != -1) {
+            selectedNetID = Integer.parseInt(Input.getUserInput(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | Please select the host you would like to identify by entering it's net ID:" : "[-] | Please select the host you would like to identify by entering it's net ID:"));
+
+            for (final String score : Clients.getClientTypeByPorts(netID.get(selectedNetID), "null")) {
+
+                System.out.println(score);
+            }
+        }
     }
 }
