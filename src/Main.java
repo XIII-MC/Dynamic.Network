@@ -1,4 +1,5 @@
 import net.Clients;
+import net.Ports;
 import net.Scan;
 import options.Settings;
 import utils.Colors;
@@ -11,6 +12,8 @@ import java.util.*;
 public class Main extends Settings {
 
     public static void main(final String[] args) throws IOException {
+
+        System.out.println(Ports.checkAllPorts("192.168.1.253", false));
 
         if (System.getProperty("os.name").startsWith("Windows")) {
 
