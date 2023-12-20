@@ -1,49 +1,100 @@
 package net;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Clients extends Ports {
 
-    public static List<String> getClientTypeByPorts(final String ipv4, final String hostname) {
+    public static List<String> getClientTypeByPorts(final String ipv4) {
 
-        int pts_printer = 0, pts_nas = 0, pts_tv = 0, pts_server = 0, pts_wsServer = 0, pts_web = 0, pts_msClient = 0;
+        final AtomicInteger pts_printer = new AtomicInteger();
+        final AtomicInteger pts_nas = new AtomicInteger();
+        final AtomicInteger pts_tv = new AtomicInteger();
+        final AtomicInteger pts_server = new AtomicInteger();
+        final AtomicInteger pts_wsServer = new AtomicInteger();
+        final AtomicInteger pts_web = new AtomicInteger();
+        final AtomicInteger pts_msClient = new AtomicInteger();
+
+        final ExecutorService executorService = Executors.newFixedThreadPool(65535);
+        final List<CompletableFuture<Void>> futures = new ArrayList<>();
 
         for(Map.Entry<Integer, Integer> entry : ports_printer.entrySet()) {
 
-            if (checkPort(ipv4, entry.getKey())) pts_printer += entry.getValue();
+            final CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+
+                if (checkPort(ipv4, entry.getKey())) pts_printer.addAndGet(entry.getValue());
+
+            }, executorService);
+            futures.add(future);
         }
 
         for(Map.Entry<Integer, Integer> entry : ports_nas.entrySet()) {
 
-            if (checkPort(ipv4, entry.getKey())) pts_nas += entry.getValue();
+            final CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+
+                if (checkPort(ipv4, entry.getKey())) pts_nas.addAndGet(entry.getValue());
+
+            }, executorService);
+            futures.add(future);
         }
 
         for(Map.Entry<Integer, Integer> entry : ports_tv.entrySet()) {
 
-            if (checkPort(ipv4, entry.getKey())) pts_tv += entry.getValue();
+            final CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+
+                if (checkPort(ipv4, entry.getKey())) pts_tv.addAndGet(entry.getValue());
+
+            }, executorService);
+            futures.add(future);
         }
 
         for(Map.Entry<Integer, Integer> entry : ports_server.entrySet()) {
 
-            if (checkPort(ipv4, entry.getKey())) pts_server += entry.getValue();
+            final CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+
+                if (checkPort(ipv4, entry.getKey())) pts_server.addAndGet(entry.getValue());
+
+            }, executorService);
+            futures.add(future);
         }
 
         for(Map.Entry<Integer, Integer> entry : ports_wsServ.entrySet()) {
 
-            if (checkPort(ipv4, entry.getKey())) pts_wsServer += entry.getValue();
+            final CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+
+                if (checkPort(ipv4, entry.getKey())) pts_wsServer.addAndGet(entry.getValue());
+
+            }, executorService);
+            futures.add(future);
         }
 
         for(Map.Entry<Integer, Integer> entry : ports_web.entrySet()) {
 
-            if (checkPort(ipv4, entry.getKey())) pts_web += entry.getValue();
+            final CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+
+                if (checkPort(ipv4, entry.getKey())) pts_web.addAndGet(entry.getValue());
+
+            }, executorService);
+            futures.add(future);
         }
 
         for(Map.Entry<Integer, Integer> entry : ports_msClient.entrySet()) {
 
-            if (checkPort(ipv4, entry.getKey())) pts_msClient += entry.getValue();
+            final CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+
+                if (checkPort(ipv4, entry.getKey())) pts_msClient.addAndGet(entry.getValue());
+
+            }, executorService);
+            futures.add(future);
         }
 
-        final List<String> tempPtsResults = Arrays.asList(pts_printer + "    | Printer score: " + pts_printer, pts_nas + "    | NAS score: " + pts_nas, pts_tv + "    | TV score: " + pts_tv, pts_server + "    | Server score: " + pts_server, pts_wsServer + "    | MS Server score: " + pts_wsServer, pts_web + "    | Web score: " + pts_web, pts_msClient + "    | MS Client score: " + pts_msClient);
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        executorService.shutdownNow();
+
+        final List<String> tempPtsResults = Arrays.asList(pts_printer.get() + "    | Printer score: " + pts_printer.get(), pts_nas.get() + "    | NAS score: " + pts_nas.get(), pts_tv.get() + "    | TV score: " + pts_tv.get(), pts_server.get() + "    | Server score: " + pts_server.get(), pts_wsServer.get() + "    | MS Server score: " + pts_wsServer.get(), pts_web.get() + "    | Web score: " + pts_web.get(), pts_msClient.get() + "    | MS Client score: " + pts_msClient.get());
         final List<String> ptsResults = new ArrayList<>();
 
         Collections.sort(ptsResults);

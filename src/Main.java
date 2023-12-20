@@ -81,7 +81,7 @@ public class Main extends Settings {
         while (selectedNetID != -1) {
             selectedNetID = Integer.parseInt(Input.getUserInput(ANSI ? Colors.PURPLE + "[-]" + Colors.RESET + " | Please select the host you would like to identify by entering it's net ID:" : "[-] | Please select the host you would like to identify by entering it's net ID:"));
 
-            for (final String score : Clients.getClientTypeByPorts(netID.get(selectedNetID), "null")) {
+            for (final String score : Clients.getClientTypeByPorts(netID.get(selectedNetID))) {
 
                 System.out.println(score);
             }
