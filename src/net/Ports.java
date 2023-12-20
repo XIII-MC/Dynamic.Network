@@ -35,7 +35,7 @@ public class Ports {
     // 515 | Printing Services Listener | Line Printer DAEMON
     // 631 | MacOS Sharing
     // 808 | Port Sharing Services | MS-Net.TCP
-    // 9310 | Printing Port Request
+    // 3910 | Printing Port Request
     // 9100 | HP JetDirect
 
     // [K] PORT, [V] POINT_VALUE
