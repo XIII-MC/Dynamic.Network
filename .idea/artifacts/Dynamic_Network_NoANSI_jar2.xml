@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Dynamic.Network_NoANSI:jar2">
+    <output-path>$PROJECT_DIR$/out/artifacts/Dynamic_Network_NoANSI_jar2</output-path>
+    <root id="archive" name="Dynamic.Network.jar">
+      <element id="module-output" name="Dynamic.Network" />
+    </root>
+  </artifact>
+</component>
