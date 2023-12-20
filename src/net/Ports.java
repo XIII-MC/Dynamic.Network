@@ -33,7 +33,9 @@ public class Ports {
     // 139 | NetBIOS Printer & Sharing | MS-WIN (All Versions)
     // 445 | SMB | Network Sharing
     // 515 | Printing Services Listener | Line Printer DAEMON
+    // 631 | MacOS Sharing
     // 808 | Port Sharing Services | MS-Net.TCP
+    // 9310 | Printing Port Request
     // 9100 | HP JetDirect
 
     // [K] PORT, [V] POINT_VALUE
@@ -48,8 +50,10 @@ public class Ports {
         put(139, 5);
         put(445, 10);
         put(515, 20);
+        put(631, 20);
         put(808, 20);
-        put(9100, 10);
+        put(3910, 50);
+        put(9100, 20);
     }};
 
     // 80 | HTTP | Web Interface
