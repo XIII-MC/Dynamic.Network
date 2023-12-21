@@ -1,5 +1,4 @@
 import net.Clients;
-import net.Ports;
 import net.Scan;
 import options.Settings;
 import utils.Colors;
