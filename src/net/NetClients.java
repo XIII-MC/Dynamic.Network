@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class Clients extends Ports {
+public final class NetClients extends NetPorts {
 
     public static List<String> getClientTypeByPorts(final String ipv4) {
 
@@ -94,16 +94,37 @@ public final class Clients extends Ports {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         executorService.shutdownNow();
 
-        final List<String> tempPtsResults = Arrays.asList(pts_printer.get() + "    | Printer score: " + pts_printer.get(), pts_nas.get() + "    | NAS score: " + pts_nas.get(), pts_tv.get() + "    | TV score: " + pts_tv.get(), pts_server.get() + "    | Server score: " + pts_server.get(), pts_wsServer.get() + "    | MS Server score: " + pts_wsServer.get(), pts_web.get() + "    | Web score: " + pts_web.get(), pts_msClient.get() + "    | MS Client score: " + pts_msClient.get());
+        final String[] tempPtsResults = { pts_printer.get() + "| Printer score: " + pts_printer.get(), pts_nas.get() + "| NAS score: " + pts_nas.get(), pts_tv.get() + "| TV score: " + pts_tv.get(), pts_server.get() + "| Server score: " + pts_server.get(), pts_wsServer.get() + "| MS Server score: " + pts_wsServer.get(), pts_web.get() + "| Web score: " + pts_web.get(), pts_msClient.get() + "| MS Client score: " + pts_msClient.get() };
+
+        Arrays.sort(tempPtsResults, Collections.reverseOrder());
+
+        System.out.println(Arrays.toString(tempPtsResults));
+
         final List<String> ptsResults = new ArrayList<>();
 
-        Collections.sort(ptsResults);
-
+        int size = 1;
         for (final String result : tempPtsResults) {
 
-            ptsResults.add(result.replaceAll("^.*(?=    )", ""));
+            ptsResults.add("    | #" + size + " " + result.replaceAll(".*\\d\\|", "|"));
+
+            size++;
         }
 
         return ptsResults;
+    }
+
+    public static void lexSort (int[] array)
+    {
+        String[] sarr = new String[array.length];
+        // convent the array to a String array
+        for (int i = 0; i < sarr.length; i++) {
+            sarr[i] = Integer.toString (array[i]);
+        }
+        // sort the String array (descending lexicographical order)
+        Arrays.sort (sarr);
+        // assign the sorted String array back to the input int array in reverse order
+        for (int i = 0; i < sarr.length; i++) {
+            array[i] = Integer.parseInt (sarr[sarr.length-1-i]);
+        }
     }
 }

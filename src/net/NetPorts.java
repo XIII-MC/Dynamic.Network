@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Ports {
+public class NetPorts {
 
     /*
     Port lists containing interesting ports that could be used/lead to exploits or vulnerabilities.
@@ -175,7 +175,7 @@ public class Ports {
     // 445 | SMB
 
     // [K] PORT, [V] POINT_VALUE
-    // Windows Clients
+    // Windows NetClients
     public static Map<Integer, Integer> ports_msClient = new HashMap<Integer, Integer>()
     {{
         put(135, 10);
