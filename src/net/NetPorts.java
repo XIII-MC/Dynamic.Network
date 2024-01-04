@@ -136,7 +136,7 @@ public class NetPorts {
 
     // [K] PORT, [V] POINT_VALUE
     // Windows focused Servers
-    public static Map<Integer, Integer> ports_wsServ = new HashMap<Integer, Integer>()
+    public static Map<Integer, Integer> ports_msServ = new HashMap<Integer, Integer>()
     {{
         put(53, 10);
         put(88, 10);

@@ -65,6 +65,7 @@ public class Main extends Settings {
 
         // Logging
         System.out.println(ANSI ? ColorsUtils.PURPLE + "[-]" + ColorsUtils.RESET + " | Running network scan on '" + interfaceIP + "', please wait..." : "[-] | Running network scan on '" + interfaceIP + "', please wait...");
+        System.out.print("[");
 
         // Net scan
         // Make a hashmap in order to be able to identify

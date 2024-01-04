@@ -63,6 +63,8 @@ public final class NetScan extends Settings {
 
                 } catch (final IOException ignored) {}
 
+                if (finalI % 2 == 0) System.out.print("|");
+
             }, executorService);
             futures.add(future);
         }
@@ -70,6 +72,8 @@ public final class NetScan extends Settings {
         // Clear up all the threads
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         executorService.shutdownNow();
+
+        System.out.print("]" + "\n");
 
         // Logging
         System.out.println("    | Finished network scan in " + (System.currentTimeMillis() - startTime) + "ms!");
