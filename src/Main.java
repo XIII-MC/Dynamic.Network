@@ -9,7 +9,6 @@ import java.net.NetworkInterface;
 import java.util.*;
 
 public class Main extends Settings {
-
     public static void main(final String[] args) throws IOException {
 
         if (System.getProperty("os.name").startsWith("Windows")) {

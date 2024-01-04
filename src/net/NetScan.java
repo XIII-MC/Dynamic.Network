@@ -44,7 +44,15 @@ public final class NetScan extends Settings {
 
                     // According to Oracle this works similarly to an ICMP ping
                     final InetAddress address = InetAddress.getByName(ip + finalI);
-                    if (sendICMP(ip + finalI)) {
+
+                    //Precision and speed
+                    //if (sendICMP(ip + finalI)) {
+                    //    if (!reverse) returnIP.put(ip + finalI, "*DISABLED*");
+                    //    //if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
+                    //} else if (reverse) returnIP.put(address.getHostAddress(), null);
+
+                    //Speed, however ARP could be wrong
+                    if (validARP(ip + finalI)) {
                         if (!reverse) returnIP.put(ip + finalI, "*DISABLED*");
                         //if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
                     } else if (reverse) returnIP.put(address.getHostAddress(), null);
@@ -69,7 +77,7 @@ public final class NetScan extends Settings {
 
         try {
 
-            final ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ping -n 1 " + ipv4);
+            final ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ping " + ipv4 + " -l 1 -w 3000");
             builder.redirectErrorStream(true);
             final Process process = builder.start();
             final InputStream is = process.getInputStream();
@@ -77,10 +85,33 @@ public final class NetScan extends Settings {
 
             String line = null;
             while ((line = reader.readLine()) != null) {
+                //System.out.println(line);
                 if ((line.contains("bytes=") && line.contains("time=") && line.contains("TTL=")) || line.contains("Request timed out")) return true;
             }
 
             return false;
+
+        } catch (final Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean validARP(final String ipv4) {
+
+        try {
+
+            final ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "arp -a " + ipv4);
+            builder.redirectErrorStream(true);
+            final Process process = builder.start();
+            final InputStream is = process.getInputStream();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("No ARP Entries Found.")) return false;
+            }
+
+            return true;
 
         } catch (final Exception e) {
             return false;
