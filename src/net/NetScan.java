@@ -10,11 +10,9 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public final class NetScan extends Settings {
 
@@ -51,6 +49,9 @@ public final class NetScan extends Settings {
                     //    //if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
                     //} else if (reverse) returnIP.put(address.getHostAddress(), null);
 
+                    // Trigger network discovery
+                    sendICMP(ip + finalI);
+
                     //Speed, however ARP could be wrong
                     if (validARP(ip + finalI)) {
                         if (!reverse) returnIP.put(ip + finalI, "*DISABLED*");
@@ -77,7 +78,7 @@ public final class NetScan extends Settings {
 
         try {
 
-            final ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ping " + ipv4 + " -l 1 -w 3000");
+            final ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ping -n 1 -c 1 -w 1 " + ipv4);
             builder.redirectErrorStream(true);
             final Process process = builder.start();
             final InputStream is = process.getInputStream();
