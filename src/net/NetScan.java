@@ -1,6 +1,7 @@
 package net;
 
 import options.Settings;
+import utils.ProgressBarUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.concurrent.Executors;
 public final class NetScan extends Settings {
 
     private static DatagramSocket socket = null;
+    private static int scannedIpCount = 0;
 
     public static HashMap<String, String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) {
 
@@ -63,7 +65,9 @@ public final class NetScan extends Settings {
 
                 } catch (final IOException ignored) {}
 
-                if (finalI % 2 == 0) System.out.print("|");
+                scannedIpCount++;
+
+                ProgressBarUtils.progressPercentage(scannedIpCount, 255);
 
             }, executorService);
             futures.add(future);
@@ -73,7 +77,6 @@ public final class NetScan extends Settings {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         executorService.shutdownNow();
 
-        System.out.print("]" + "\n");
 
         // Logging
         System.out.println("    | Finished network scan in " + (System.currentTimeMillis() - startTime) + "ms!");

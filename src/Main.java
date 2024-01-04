@@ -13,7 +13,6 @@ import java.util.*;
 
 public class Main extends Settings {
 
-
     public static void main(final String[] args) throws IOException {
 
         if (System.getProperty("os.name").startsWith("Windows")) {
@@ -65,7 +64,6 @@ public class Main extends Settings {
 
         // Logging
         System.out.println(ANSI ? ColorsUtils.PURPLE + "[-]" + ColorsUtils.RESET + " | Running network scan on '" + interfaceIP + "', please wait..." : "[-] | Running network scan on '" + interfaceIP + "', please wait...");
-        System.out.print("[");
 
         // Net scan
         // Make a hashmap in order to be able to identify
