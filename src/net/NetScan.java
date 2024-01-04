@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +17,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class NetScan extends Settings {
+
+    private static DatagramSocket socket = null;
 
     public static HashMap<String, String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) {
 
@@ -43,8 +47,10 @@ public final class NetScan extends Settings {
                     // According to Oracle this works similarly to an ICMP ping
                     final InetAddress address = InetAddress.getByName(ip + finalI);
 
+                    broadcast("ARP_DISCOVERY", InetAddress.getByName(ip + finalI));
+
                     //Precision and speed
-                    if (sendICMP(ip + finalI)) {
+                    if (validARP(ip + finalI)) {
                         if (!reverse) returnIP.put(ip + finalI, "*DISABLED*");
                         //if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
                     } else if (reverse) returnIP.put(address.getHostAddress(), null);
@@ -114,5 +120,18 @@ public final class NetScan extends Settings {
         } catch (final Exception e) {
             return false;
         }
+    }
+
+    public static void broadcast(
+            String broadcastMessage, InetAddress address) throws IOException {
+        socket = new DatagramSocket();
+        socket.setBroadcast(true);
+
+        byte[] buffer = broadcastMessage.getBytes();
+
+        DatagramPacket packet
+                = new DatagramPacket(buffer, buffer.length, address, 4445);
+        socket.send(packet);
+        socket.close();
     }
 }
