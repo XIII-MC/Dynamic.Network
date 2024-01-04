@@ -44,19 +44,16 @@ public final class NetScan extends Settings {
                     final InetAddress address = InetAddress.getByName(ip + finalI);
 
                     //Precision and speed
-                    //if (sendICMP(ip + finalI)) {
-                    //    if (!reverse) returnIP.put(ip + finalI, "*DISABLED*");
-                    //    //if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
-                    //} else if (reverse) returnIP.put(address.getHostAddress(), null);
-
-                    // Trigger network discovery
-                    sendICMP(ip + finalI);
-
-                    //Speed, however ARP could be wrong
-                    if (validARP(ip + finalI)) {
+                    if (sendICMP(ip + finalI)) {
                         if (!reverse) returnIP.put(ip + finalI, "*DISABLED*");
                         //if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
                     } else if (reverse) returnIP.put(address.getHostAddress(), null);
+
+                    //Speed, however ARP could be wrong
+                    //if (validARP(ip + finalI)) {
+                    //    if (!reverse) returnIP.put(ip + finalI, "*DISABLED*");
+                    //    //if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
+                    //} else if (reverse) returnIP.put(address.getHostAddress(), null);
 
                 } catch (final IOException ignored) {}
 
@@ -78,7 +75,7 @@ public final class NetScan extends Settings {
 
         try {
 
-            final ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ping -n 1 -c 1 -w 1 " + ipv4);
+            final ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ping -l 1024 -n 1 -w 1 " + ipv4);
             builder.redirectErrorStream(true);
             final Process process = builder.start();
             final InputStream is = process.getInputStream();
@@ -87,7 +84,7 @@ public final class NetScan extends Settings {
             String line = null;
             while ((line = reader.readLine()) != null) {
                 //System.out.println(line);
-                if ((line.contains("bytes=") && line.contains("time=") && line.contains("TTL=")) || line.contains("Request timed out")) return true;
+                if ((line.contains("bytes=") && line.contains("time=") && line.contains("TTL="))) return true;
             }
 
             return false;
