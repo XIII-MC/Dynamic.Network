@@ -1,5 +1,6 @@
 package net;
 
+import com.sun.javaws.progress.Progress;
 import options.Settings;
 import utils.ProgressBarUtils;
 
@@ -10,17 +11,18 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class NetScan extends Settings {
 
     private static DatagramSocket socket = null;
     private static int scannedIpCount = 0;
+    public static int aliveHost = 0, deadHost = 0, unknownHost = 0;
 
     public static HashMap<String, String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) {
 
@@ -46,28 +48,44 @@ public final class NetScan extends Settings {
 
                 try {
 
+                    // Full IP
+                    final String fullIp = ip + finalI;
+
                     // According to Oracle this works similarly to an ICMP ping
-                    final InetAddress address = InetAddress.getByName(ip + finalI);
+                    final InetAddress address = InetAddress.getByName(fullIp);
 
-                    broadcast("ARP_DISCOVERY", InetAddress.getByName(ip + finalI));
+                    broadcast("ARP_DISCOVERY", InetAddress.getByName(fullIp));
 
-                    //Precision and speed
-                    if (validARP(ip + finalI)) {
-                        if (!reverse) returnIP.put(ip + finalI, "*DISABLED*");
-                        //if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
-                    } else if (reverse) returnIP.put(address.getHostAddress(), null);
+                    // ARP
+                    final String arpResult = getFromARP(fullIp);
 
-                    //Speed, however ARP could be wrong
-                    //if (validARP(ip + finalI)) {
-                    //    if (!reverse) returnIP.put(ip + finalI, "*DISABLED*");
-                    //    //if (!reverse) returnIP.put(address.getHostAddress(), getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A" : address.getHostName()) : "*DISABLED*");
-                    //} else if (reverse) returnIP.put(address.getHostAddress(), null);
+                    if (!arpResult.equals("N/A")) {
+
+                        if (!reverse) {
+                            aliveHost++;
+                            final String hostName =
+                                    (Objects.equals(address.getHostName(), address.getHostAddress())
+                                            ? "N/A"
+                                            : address.getHostName());
+                            returnIP.put(address.getHostAddress(),
+                                    hostName + " |" + (address.getHostAddress().length() > 12 ? (new String(new char[14 - address.getHostAddress().length()]).replace("\0", " ")) : "") + (new String(new char[(Math.max(hostName.length(), 8)) - hostName.length()]).replace("\0", " ")) + arpResult);
+                        }
+                    } else {
+
+                        unknownHost++;
+
+                        if (reverse) {
+                            deadHost++;
+                            returnIP.put(address.getHostAddress(), "N/A");
+                        }
+                    }
 
                 } catch (final IOException ignored) {}
 
                 scannedIpCount++;
 
-                ProgressBarUtils.progressPercentage(scannedIpCount, 255);
+                //ProgressBarUtils.progressPercentage(scannedIpCount, 255);
+                ProgressBarUtils.printProgress(startTime, 255, scannedIpCount);
 
             }, executorService);
             futures.add(future);
@@ -129,6 +147,14 @@ public final class NetScan extends Settings {
         }
     }
 
+    public static String getFromARP(final String ipv4) throws IOException {
+        final Scanner s = new Scanner(Runtime.getRuntime().exec("arp -a " + ipv4).getInputStream()).useDelimiter("\\A");
+        final Pattern macPattern = Pattern.compile("(?<=         ).*(?=     )");
+        final Matcher macMatcher = macPattern.matcher(s.hasNext() ? s.next() : "");
+        if (macMatcher.find()) return macMatcher.group();
+        return "N/A";
+    }
+
     public static void broadcast(
             String broadcastMessage, InetAddress address) throws IOException {
         socket = new DatagramSocket();
@@ -137,7 +163,7 @@ public final class NetScan extends Settings {
         byte[] buffer = broadcastMessage.getBytes();
 
         DatagramPacket packet
-                = new DatagramPacket(buffer, buffer.length, address, 4445);
+                = new DatagramPacket(buffer, buffer.length, address, 0);
         socket.send(packet);
         socket.close();
     }

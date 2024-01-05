@@ -98,8 +98,6 @@ public final class NetClients extends NetPorts {
 
         Arrays.sort(tempPtsResults, Collections.reverseOrder());
 
-        System.out.println(Arrays.toString(tempPtsResults));
-
         final List<String> ptsResults = new ArrayList<>();
 
         int size = 1;
