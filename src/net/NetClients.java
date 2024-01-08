@@ -110,19 +110,4 @@ public final class NetClients extends NetPorts {
 
         return ptsResults;
     }
-
-    public static void lexSort (int[] array)
-    {
-        String[] sarr = new String[array.length];
-        // convent the array to a String array
-        for (int i = 0; i < sarr.length; i++) {
-            sarr[i] = Integer.toString (array[i]);
-        }
-        // sort the String array (descending lexicographical order)
-        Arrays.sort (sarr);
-        // assign the sorted String array back to the input int array in reverse order
-        for (int i = 0; i < sarr.length; i++) {
-            array[i] = Integer.parseInt (sarr[sarr.length-1-i]);
-        }
-    }
 }

@@ -3,11 +3,10 @@ package net;
 import options.Settings;
 import utils.ProgressBarUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -17,26 +16,36 @@ import java.util.regex.Pattern;
 
 public final class NetScan extends Settings {
 
-    private static int scannedIpCount = 0;
-    public static int aliveHost = 0, deadHost = 0, unknownHost = 0;
+    public static int scannedIpCount = 0, aliveHost = 0, deadHost = 0, unknownHost = 0;
+
+    public static long timeTaken = 0L;
 
     public static HashMap<String, String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) throws IOException {
 
         final long startTime = System.currentTimeMillis();
 
         // To make the task faster (and by a lot), we're going to use multithreading, 256 threads because 256 IPs (0-255)
-        final ExecutorService executorService = Executors.newFixedThreadPool(maxNetThreads);
+        final ExecutorService executorService = Executors.newFixedThreadPool(256);
         final List<CompletableFuture<Void>> futures = new ArrayList<>();
 
         // Split the IP, so we can change the last byte
         final String[] ipv4Split = ipv4.split("\\.");
         final String ip = ipv4Split[0] + "." + ipv4Split[1] + "." + ipv4Split[2] + ".";
 
+        // Pre run a network scan to make arp update
+        runPreArpCache(ip);
+
+        try {
+
+            Thread.sleep(4900);
+
+        } catch (final InterruptedException ignored) {}
+
         // Define the list and if it should be reversed
         final HashMap<String, String> returnIP = new HashMap<>();
 
         // Pre cache the ARP list
-        final Matcher arpCache = getArpCache(ipv4);
+        final HashMap<String, String> arpCache = getArpCache(ipv4);
 
         for (int i = 0; i <= 254; i++) {
 
@@ -53,31 +62,24 @@ public final class NetScan extends Settings {
                     // According to Oracle this works similarly to an ICMP ping
                     final InetAddress address = InetAddress.getByName(fullIp);
 
-                    // Force network discovery
-                    new Socket().connect(new InetSocketAddress(address, 10), 500);
-
-                    // ARP
-                    final String arpResult = getFromARP(fullIp);
-
-                    if (!arpResult.equals("N/A")) {
+                    if (arpCache.containsKey(fullIp)) {
 
                         if (!reverse) {
+
                             aliveHost++;
 
-                            final String hostName =
-                                    (Objects.equals(address.getHostName(), address.getHostAddress())
-                                            ? "N/A"
-                                            : address.getHostName());
+                            final String hostName = Settings.getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A (Unknown)" : address.getHostName()) : "N/A (Disabled)";
                             returnIP.put(address.getHostAddress(),
-                                    hostName + (new String(new char[(25 + fullIp.length()) - (hostName.length() + fullIp.length())]).replace("\0", " ")) + " | " + (new String(new char[fullIp.length() - 7]).replace("\0", " ")) +  arpResult);
+                                    hostName + (new String(new char[(25 + fullIp.length()) - (hostName.length() + fullIp.length())]).replace("\0", " ")) + " | " + arpCache.get(fullIp));
                         }
                     } else {
 
                         unknownHost++;
 
                         if (reverse) {
+
                             deadHost++;
-                            returnIP.put(address.getHostAddress(), "N/A");
+                            returnIP.put(address.getHostAddress(), "N/A (Host is dead)");
                         }
                     }
 
@@ -96,98 +98,73 @@ public final class NetScan extends Settings {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         executorService.shutdownNow();
 
+        // Clear progress bar
         System.out.print("\r");
 
-        // Logging
-        System.out.println("    | Finished network scan in " + (System.currentTimeMillis() - startTime) + "ms!");
+        // Stats for nerds (me)
+        timeTaken = (System.currentTimeMillis() - startTime);
 
         return returnIP;
     }
 
-    public static boolean sendICMP(final String ipv4) {
+    public static void runPreArpCache(final String ipv4_3bytes) {
 
-        try {
+        // To make the task faster (and by a lot), we're going to use multithreading, 256 threads because 256 IPs (0-255)
+        final ExecutorService executorService = Executors.newFixedThreadPool(256);
+        final List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-            final ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ping -l 1024 -n 1 -w 1 " + ipv4);
-            builder.redirectErrorStream(true);
-            final Process process = builder.start();
-            final InputStream is = process.getInputStream();
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        for (int i = 0; i <= 254; i++) {
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if ((line.contains("bytes=") && line.contains("time=") && line.contains("TTL="))) return true;
-            }
+            int finalI = i;
 
-            return false;
+            final CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
 
-        } catch (final Exception e) {
-            return false;
+                try {
+
+                    new Socket().connect(new InetSocketAddress(ipv4_3bytes + finalI, 10), 4900);
+                } catch (final IOException ignored) {}
+            }, executorService);
+            futures.add(future);
         }
     }
 
-    public static boolean validARP(final String ipv4) {
+    public static HashMap<String, String> getArpCache(final String ipv4) throws IOException {
 
-        try {
+        final Scanner s = new Scanner(Runtime.getRuntime().exec("arp -a -N " + ipv4).getInputStream()).useDelimiter("\\A");
 
-            final ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "arp -a " + ipv4);
-            builder.redirectErrorStream(true);
-            final Process process = builder.start();
-            final InputStream is = process.getInputStream();
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        final Pattern arpLinePattern = Pattern.compile("\\d.*(?= {5}dynamic)");
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("No ARP Entries Found.")) return false;
+        final Pattern ipPattern = Pattern.compile("\\d.*(?= )");
+        final Pattern macPattern = Pattern.compile("(?<= {7}).*");
+
+        // K=IP | V=MAC
+        final HashMap<String, String> arpCache = new HashMap<>();
+
+        while (s.hasNext()) {
+
+            final Matcher arpLineMatcher = arpLinePattern.matcher(s.next());
+
+            while (arpLineMatcher.find()) {
+
+                String mac = null, ip = null;
+
+                final Matcher ipMatcher = ipPattern.matcher(arpLineMatcher.group());
+                final Matcher macMatcher = macPattern.matcher(arpLineMatcher.group());
+
+                while (ipMatcher.find()) {
+
+                    ip = ipMatcher.group().replaceAll(" ", "");
+                }
+
+                while (macMatcher.find()) {
+
+                    mac = macMatcher.group().replaceAll(" ", "");
+                }
+
+                arpCache.put(ip, mac);
             }
-
-            return true;
-
-        } catch (final Exception e) {
-            return false;
         }
-    }
 
-    public static String getFromARP(final String ipv4) throws IOException {
-        final Scanner s = new Scanner(Runtime.getRuntime().exec("arp -a " + ipv4).getInputStream()).useDelimiter("\\A");
-        final Pattern macPattern = Pattern.compile("(?<= {9}).*(?= {5})");
-        final Matcher macMatcher = macPattern.matcher(s.hasNext() ? s.next() : "");
-        if (macMatcher.find()) return macMatcher.group();
-        return "N/A";
-    }
-
-    public static Matcher getArpCache(final String ipv4) throws IOException {
-
-        final Scanner s = new Scanner(Runtime.getRuntime().exec("arp -a " + ipv4).getInputStream()).useDelimiter("\\A");
-
-        final Pattern ipPattern = Pattern.compile("\\d.*(?= {5}dynamic)");
-        final Matcher ipMatcher = ipPattern.matcher(s.hasNext() ? s.next() : "");
-
-        if (ipMatcher.find()) return ipMatcher;
-
-        return null;
-    }
-
-    public static String getMacFromArp(final String arpLine) throws IOException {
-
-        final Pattern macPattern = Pattern.compile("(?<= {11}).*");
-        final Matcher macMatcher = macPattern.matcher(arpLine);
-
-        if (macMatcher.find()) return macMatcher.group();
-
-        return "N/A";
-    }
-
-    public static void broadcast(
-            final String broadcastMessage, InetAddress address) throws IOException {
-        final DatagramSocket socket = new DatagramSocket();
-        socket.setBroadcast(true);
-
-        byte[] buffer = broadcastMessage.getBytes();
-
-        final DatagramPacket packet
-                = new DatagramPacket(buffer, buffer.length, address, 4445);
-        socket.send(packet);
-        socket.close();
+        return arpCache;
     }
 }

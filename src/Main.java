@@ -89,9 +89,12 @@ public class Main extends Settings {
             netID.put(netID.size(), set.getKey());
         }
 
+        // Logging
         System.out.println(
                 ANSI ? "    | " + ColorsUtils.RED + "[C] v<-x->? [H]" + ColorsUtils.RESET + " | We couldn't reach other hosts :("
                         : "    | [C] v<-x->? [H] | We couldn't reach other hosts :(");
+
+        System.out.println("    | We reached " + scanResults.size() + " hosts in " + NetScan.timeTaken + " milliseconds! (4900ms as wait time...)");
 
         // Identify clients function
         int selectedNetID = 0;

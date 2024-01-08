@@ -1,32 +1,9 @@
 package utils;
 
-import net.NetScan;
-
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 public class ProgressBarUtils {
-
-    public static void progressPercentage(int remain, int total) {
-        if (remain > total) {
-            throw new IllegalArgumentException();
-        }
-        int maxBareSize = 100; // 10unit for 100%
-        int remainProcent = ((10000 * remain) / total) / maxBareSize;
-        char defaultChar = '.';
-        String icon = "|";
-        String bare = new String(new char[maxBareSize]).replace('\0', defaultChar) + "]";
-        StringBuilder bareDone = new StringBuilder();
-        bareDone.append("[");
-        for (int i = 0; i < remainProcent; i++) {
-            bareDone.append(icon);
-        }
-        String bareRemain = bare.substring(remainProcent, bare.length());
-        System.out.print("\r" + bareDone + bareRemain + " " + remainProcent + "% | Alive hosts: " + NetScan.aliveHost + " | Dead Hosts: " + NetScan.deadHost + " | Unknown Hosts: " + NetScan.unknownHost);
-        if (remain == total) {
-            System.out.print("\r");
-        }
-    }
 
     public static void printProgress(long startTime, long total, long current) {
         long eta = current == 0 ? 0 :
