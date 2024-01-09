@@ -4,9 +4,7 @@ import options.Settings;
 import utils.ProgressBarUtils;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -20,7 +18,7 @@ public final class NetScan extends Settings {
 
     public static long timeTaken = 0L;
 
-    public static HashMap<String, String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) throws IOException {
+    public static HashMap<String, String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) throws IOException, InterruptedException {
 
         final long startTime = System.currentTimeMillis();
 
@@ -37,8 +35,7 @@ public final class NetScan extends Settings {
 
         try {
 
-            Thread.sleep(4900);
-
+            Thread.sleep(5000);
         } catch (final InterruptedException ignored) {}
 
         // Define the list and if it should be reversed
@@ -121,8 +118,12 @@ public final class NetScan extends Settings {
 
                 try {
 
-                    new Socket().connect(new InetSocketAddress(ipv4_3bytes + finalI, 10), 4900);
-                } catch (final IOException ignored) {}
+                    for (int j = 0; j <= 5; j++) {
+                        Runtime.getRuntime().exec("ping " + (ipv4_3bytes + finalI) + " -n 1");
+                        Thread.sleep(50);
+                    }
+                } catch (final IOException | InterruptedException ignored) {}
+
             }, executorService);
             futures.add(future);
         }
@@ -132,7 +133,7 @@ public final class NetScan extends Settings {
 
         final Scanner s = new Scanner(Runtime.getRuntime().exec("arp -a -N " + ipv4).getInputStream()).useDelimiter("\\A");
 
-        final Pattern arpLinePattern = Pattern.compile("\\d.*(?= {5}dynamic)");
+        final Pattern arpLinePattern = Pattern.compile("\\d.*(?= {5})");
 
         final Pattern ipPattern = Pattern.compile("\\d.*(?= )");
         final Pattern macPattern = Pattern.compile("(?<= {7}).*");

@@ -10,7 +10,7 @@ import java.util.*;
 
 public class Main extends Settings {
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException, InterruptedException {
 
         if (System.getProperty("os.name").startsWith("Windows")) {
 
@@ -94,7 +94,7 @@ public class Main extends Settings {
                 ANSI ? "    | " + ColorsUtils.RED + "[C] v<-x->? [H]" + ColorsUtils.RESET + " | We couldn't reach other hosts :("
                         : "    | [C] v<-x->? [H] | We couldn't reach other hosts :(");
 
-        System.out.println("    | We reached " + scanResults.size() + " hosts in " + NetScan.timeTaken + " milliseconds! (4900ms as wait time...)");
+        System.out.println("    | We reached " + scanResults.size() + " hosts in " + NetScan.timeTaken + " milliseconds!");
 
         // Identify clients function
         int selectedNetID = 0;
