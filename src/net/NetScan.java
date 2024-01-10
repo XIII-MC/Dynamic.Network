@@ -35,7 +35,7 @@ public final class NetScan extends Settings {
 
         try {
 
-            Thread.sleep(0);
+            Thread.sleep(Settings.waitARPSync ? 5000 : 0);
         } catch (final InterruptedException ignored) {}
 
         // Define the list and if it should be reversed
@@ -118,11 +118,15 @@ public final class NetScan extends Settings {
 
                 try {
 
-                    final Scanner s = new Scanner(Runtime.getRuntime().exec("ping " + ipv4_3bytes + finalI + " -n 5 -w 1").getInputStream()).useDelimiter("\\A");
+                    if (Settings.useCmdPing) {
+                        Runtime.getRuntime().exec("ping " + ipv4_3bytes + finalI + " -n 5 -w 1 -a");
+                    } else {
+                        // TODO: find a faster WORKING solution...
+                        //new Socket().connect(new InetSocketAddress(ipv4_3bytes + finalI, 10), 3000);
+                        //sendPacket("00000000000000000000000000000-32", InetAddress.getByName(ipv4_3bytes + finalI));
+                    }
 
-                    if (s.hasNext() && s.next().contains("TTL")) Thread.currentThread().interrupt();
-
-                } catch (final IOException  ignored) {}
+                } catch (final IOException ignored) {}
 
             }, executorService);
             futures.add(future);
@@ -171,5 +175,18 @@ public final class NetScan extends Settings {
         }
 
         return arpCache;
+    }
+
+    public static void sendPacket(final String broadcastMessage, final InetAddress address) throws IOException {
+        final DatagramSocket socket;
+
+        socket = new DatagramSocket();
+
+        byte[] buffer = broadcastMessage.getBytes();
+
+        DatagramPacket packet
+                = new DatagramPacket(buffer, buffer.length, address, 9);
+        socket.send(packet);
+        socket.close();
     }
 }

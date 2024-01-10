@@ -12,7 +12,13 @@ public class Settings {
     public static boolean ANSI = false;
 
     // Identify host names of IP addresses
-    public static boolean getHostName = false;
+    public static boolean getHostName = true;
+
+    // Wait ARP cache sync (takes ages)
+    public static boolean waitARPSync = true;
+
+    // Use real CMD's ping command or a faster way around (might miss hosts)
+    public static boolean useCmdPing = true;
 
     public static void defineSettings(final Integer settingID) {
 
@@ -21,6 +27,8 @@ public class Settings {
         {{
             put("Exit", new SimpleEntry<>(0, "null"));
             put("getHostName", new SimpleEntry<>(1, String.valueOf(getHostName)));
+            put("waitARPSync", new SimpleEntry<>(2, String.valueOf(waitARPSync)));
+            put("useCmdPing", new SimpleEntry<>(3, String.valueOf(useCmdPing)));
         }};
 
         // Enumerate settings
@@ -46,5 +54,18 @@ public class Settings {
             defineSettings(-1);
         }
 
+        if (settingID == 2) {
+
+            waitARPSync = Boolean.parseBoolean(InputUtils.getUserInput(ANSI ? ColorsUtils.PURPLE + "[-]" + ColorsUtils.RESET + " | Do you want to add to delay to wait for ARP to add the hosts to it's table ? (Takes about +5s) (True/False):" : "[-] | Do you want to add to delay to wait for ARP to add the hosts to it's table ? (Takes about +5s) (True/False):"));
+            System.out.println(ANSI ? ColorsUtils.GREEN + "[v]" + ColorsUtils.RESET + " | You set the wait ARP sync feature to " + waitARPSync : "[v] | You set the wait ARP sync feature to " + waitARPSync);
+            defineSettings(-1);
+        }
+
+        if (settingID == 3) {
+
+            useCmdPing = Boolean.parseBoolean(InputUtils.getUserInput(ANSI ? ColorsUtils.PURPLE + "[-]" + ColorsUtils.RESET + " | Do you want to use CMD's ping command (slower and more resource hungry) or a faster method (can miss hosts) ? (True/False):" : "[-] | Do you want to use CMD's ping command (slower and more resource hungry) or a faster method (can miss hosts) ? (True/False):"));
+            System.out.println(ANSI ? ColorsUtils.GREEN + "[v]" + ColorsUtils.RESET + " | You set the wait ARP sync feature to " + useCmdPing : "[v] | You set the use CMD's ping feature to " + useCmdPing);
+            defineSettings(-1);
+        }
     }
 }

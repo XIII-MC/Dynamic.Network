@@ -94,9 +94,9 @@ public final class NetClients extends NetPorts {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         executorService.shutdownNow();
 
-        final String[] tempPtsResults = { pts_printer.get() + "| Printer score: " + pts_printer.get(), pts_nas.get() + "| NAS score: " + pts_nas.get(), pts_tv.get() + "| TV score: " + pts_tv.get(), pts_server.get() + "| Server score: " + pts_server.get(), pts_wsServer.get() + "| MS Server score: " + pts_wsServer.get(), pts_web.get() + "| Web score: " + pts_web.get(), pts_msClient.get() + "| MS Client score: " + pts_msClient.get() };
+        final List<String> tempPtsResults = Arrays.asList(pts_printer.get() + "| Printer score: " + pts_printer.get(), pts_nas.get() + "| NAS score: " + pts_nas.get(), pts_tv.get() + "| TV score: " + pts_tv.get(), pts_server.get() + "| Server score: " + pts_server.get(), pts_wsServer.get() + "| MS Server score: " + pts_wsServer.get(), pts_web.get() + "| Web score: " + pts_web.get(), pts_msClient.get() + "| MS Client score: " + pts_msClient.get());
 
-        Arrays.sort(tempPtsResults, Collections.reverseOrder());
+        tempPtsResults.sort(Collections.reverseOrder());
 
         final List<String> ptsResults = new ArrayList<>();
 
