@@ -35,7 +35,7 @@ public final class NetScan extends Settings {
 
         try {
 
-            Thread.sleep(5000);
+            Thread.sleep(0);
         } catch (final InterruptedException ignored) {}
 
         // Define the list and if it should be reversed
@@ -118,15 +118,19 @@ public final class NetScan extends Settings {
 
                 try {
 
-                    for (int j = 0; j <= 5; j++) {
-                        Runtime.getRuntime().exec("ping " + (ipv4_3bytes + finalI) + " -n 1");
-                        Thread.sleep(50);
-                    }
-                } catch (final IOException | InterruptedException ignored) {}
+                    final Scanner s = new Scanner(Runtime.getRuntime().exec("ping " + ipv4_3bytes + finalI + " -n 5 -w 1").getInputStream()).useDelimiter("\\A");
+
+                    if (s.hasNext() && s.next().contains("TTL")) Thread.currentThread().interrupt();
+
+                } catch (final IOException  ignored) {}
 
             }, executorService);
             futures.add(future);
         }
+
+        // Clear up all the threads
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        executorService.shutdownNow();
     }
 
     public static HashMap<String, String> getArpCache(final String ipv4) throws IOException {
