@@ -18,7 +18,7 @@ public final class NetScan extends Settings {
 
     public static long timeTaken = 0L;
 
-    public static HashMap<String, String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) throws IOException, InterruptedException {
+    public static HashMap<String, String> getNetworkIPs(final String ipv4, final int mask, final boolean reverse) throws IOException {
 
         final long startTime = System.currentTimeMillis();
 
@@ -35,7 +35,7 @@ public final class NetScan extends Settings {
 
         try {
 
-            Thread.sleep(Settings.waitARPSync ? 5000 : 0);
+            Thread.sleep(Settings.waitARPSync ? 10000 : 0);
         } catch (final InterruptedException ignored) {}
 
         // Define the list and if it should be reversed
@@ -67,7 +67,7 @@ public final class NetScan extends Settings {
 
                             final String hostName = Settings.getHostName ? (Objects.equals(address.getHostName(), address.getHostAddress()) ? "N/A (Unknown)" : address.getHostName()) : "N/A (Disabled)";
                             returnIP.put(address.getHostAddress(),
-                                    hostName + (new String(new char[(25 + fullIp.length()) - (hostName.length() + fullIp.length())]).replace("\0", " ")) + " | " + arpCache.get(fullIp));
+                                    hostName + (new String(new char[(100) - (hostName.length() + fullIp.length())]).replace("\0", " ")) + " | " + arpCache.get(fullIp));
                         }
                     } else {
 
@@ -106,35 +106,30 @@ public final class NetScan extends Settings {
 
     public static void runPreArpCache(final String ipv4_3bytes) {
 
-        // To make the task faster (and by a lot), we're going to use multithreading, 256 threads because 256 IPs (0-255)
-        final ExecutorService executorService = Executors.newFixedThreadPool(256);
-        final List<CompletableFuture<Void>> futures = new ArrayList<>();
+        try {
 
-        for (int i = 0; i <= 254; i++) {
+            byte[] b = new byte[1024]; // limit for fastest
+            new Random().nextBytes(b);
 
-            int finalI = i;
+            final DatagramSocket socket = new DatagramSocket();
 
-            final CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            final DatagramPacket packet = new DatagramPacket(b, b.length, InetAddress.getByName("192.168.1.255"), 1);
 
-                try {
+            for (int i = 0; i <= 255; i++) {
 
-                    if (Settings.useCmdPing) {
-                        Runtime.getRuntime().exec("ping " + ipv4_3bytes + finalI + " -n 5 -w 1 -a");
-                    } else {
-                        // TODO: find a faster WORKING solution...
-                        //new Socket().connect(new InetSocketAddress(ipv4_3bytes + finalI, 10), 3000);
-                        //sendPacket("00000000000000000000000000000-32", InetAddress.getByName(ipv4_3bytes + finalI));
-                    }
+                int finalI = i;
+                new Thread(() -> {
+                    try {
 
-                } catch (final IOException ignored) {}
+                        packet.setAddress(new InetSocketAddress("192.168.1." + finalI, 1).getAddress());
 
-            }, executorService);
-            futures.add(future);
-        }
+                        socket.send(packet);
+                    } catch (final IOException ignored) {}
 
-        // Clear up all the threads
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        executorService.shutdownNow();
+
+                }).start();
+            }
+        } catch (final IOException ignored) {}
     }
 
     public static HashMap<String, String> getArpCache(final String ipv4) throws IOException {

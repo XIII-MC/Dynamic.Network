@@ -21,7 +21,7 @@ public class NetPorts {
         Searching on an online database known exploits on certain ports and trying them on the host.
 
      The point rewarding system is rather pretty simple:
-        Port that could or could not be what we are expecting -> 5 PTS
+        Port that could or could not be what we're expecting -> 5 PTS
         Port that is most likely what we are expecting -> 10 PTS
         Port is definitely what we are expecting -> 20 PTS
         Port is DEDICATED to what we are expecting -> 50 PTS
