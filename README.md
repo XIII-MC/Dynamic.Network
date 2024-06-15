@@ -1,3 +1,5 @@
+# This documention is outdated and no longer needed in newer versions.
+
 # Dynamic.Network
 
 Dynamic.Network (DCN) allows you to quickly scan any network and its open ports.
